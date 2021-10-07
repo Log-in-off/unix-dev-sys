@@ -13,7 +13,7 @@ libPrint.so: print.c print.h
 	cc $(CFLAGS) print.c -shared -fPIC -o libPrint.so
 
 clean: 
-	-rm -f $(TARGET) libPrint.so *.o 2>/dev/null
+	rm -f $(TARGET) libPrint.so *.o 2>/dev/null
 
 install:
 	install $(TARGET) $(PREFIX)/bin
