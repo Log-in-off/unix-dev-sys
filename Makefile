@@ -7,7 +7,7 @@ PREFIX=/usr/local
 all: $(TARGET)
 
 simple3: simple3.c print.h libPrint.so
-	cc $(CFLAGS) simple3.c -L. -lPrint -o $(TARGET)
+	cc $(CFLAGS) simple3.c -I. -L. -lPrint -o $(TARGET)
 
 libPrint.so: print.c print.h
 	cc $(CFLAGS) print.c -shared -fPIC -o libPrint.so
