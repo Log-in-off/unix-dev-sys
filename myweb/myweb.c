@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #define HTTP_HEADER_LEN 256
 #define HTTP_REQUEST_LEN 256
 #define HTTP_METHOD_LEN 6
 #define HTTP_URI_LEN 100
+#define HTTP_URL_PATH 100
 
 #define REQ_END 100
 #define ERR_NO_URI -100
@@ -14,8 +16,8 @@ struct http_req {
 	char request[HTTP_REQUEST_LEN];
 	char method[HTTP_METHOD_LEN];
 	char uri[HTTP_URI_LEN];
-	// uri_path
-	// uri_params
+	char url_path[HTTP_URL_PATH];
+	char url_params[HTTP_URL_PATH];
 	// version
 	// user_agent
 	// server
@@ -36,6 +38,13 @@ int fill_req(char *buf, struct http_req *req) {
 		// GET /dir HTTP/1.1
 		// GET /test123?r=123 HTTP/1.1
 		// и т.п.
+		char *path, *param, *end;
+		path = strstr(p, "?");
+		uint8_t size_get = strlen("GET ");
+		//strncpy(req->url_path, p+size_get, path-p);
+		fprintf(stderr,  "size %u  p %s", size_get, p + size_get);
+		//fprintf(stderr, "test buff %s  \n",  req->url_path);
+		
 		strncpy(req->request, buf, strlen(buf));
 		strncpy(req->method, "GET", strlen("GET"));
 		a = strchr(buf, '/');
@@ -65,7 +74,7 @@ int make_resp(struct http_req *req) {
 	printf("HTTP/1.1 200 OK\r\n");
 	printf("Content-Type: text/html\r\n");
 	printf("\r\n");
-	printf("<html><body><title>Page title</title><h1>Page Header</h1></doby></html>\r\n");
+	printf("<html><body><title>Page title</title><h1>Page Header1</h1></body></html>\r\n");
 	return 0;
 }
 
