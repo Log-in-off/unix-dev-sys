@@ -38,20 +38,19 @@ int fill_req(char *buf, struct http_req *req) {
 		// GET /dir HTTP/1.1
 		// GET /test123?r=123 HTTP/1.1
 		// и т.п.
-		char *path, *param, *end;
-		path = strstr(p, "?");
+        //char *path;
+        //path = strstr(p, "?");
 		uint8_t size_get = strlen("GET ");
 		//strncpy(req->url_path, p+size_get, path-p);
 		fprintf(stderr,  "size %u  p %s", size_get, p + size_get);
 		//fprintf(stderr, "test buff %s  \n",  req->url_path);
 		
-		strncpy(req->request, buf, strlen(buf));
-		strncpy(req->method, "GET", strlen("GET"));
+        strncpy_s(req->request, sizeof (req->request), buf, strlen(buf));
 		a = strchr(buf, '/');
 		if ( a != NULL) { // есть запрашиваемый URI 
 			b = strchr(a, ' ');
 			if ( b != NULL ) { // конец URI
-				strncpy(req->uri, a, b-a);
+                strncpy_s(req->uri, sizeof (req->uri), a, b-a);
 			} else {
 				return ERR_ENDLESS_URI;  
 				// тогда это что-то не то
@@ -66,11 +65,12 @@ int fill_req(char *buf, struct http_req *req) {
 }
 
 int log_req(struct http_req *req) {
-	// fprintf(stderr, "%s %s\n%s\n", req->request, req->method, req->uri);
+    fprintf(stderr, "%s %s\n%s\n", req->request, req->method, req->uri);
 	return 0;
 }
 
 int make_resp(struct http_req *req) {
+    (void) req;
 	printf("HTTP/1.1 200 OK\r\n");
 	printf("Content-Type: text/html\r\n");
 	printf("\r\n");
