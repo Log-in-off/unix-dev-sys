@@ -38,16 +38,55 @@ int fill_req(char *buf, struct http_req *req) {
 		// GET /dir HTTP/1.1
 		// GET /test123?r=123 HTTP/1.1
 		// и т.п.
-        //char *path;
-        //path = strstr(p, "?");
-		uint8_t size_get = strlen("GET ");
-		//strncpy(req->url_path, p+size_get, path-p);
-                fprintf(stderr,  "buf %s", buf);
-		fprintf(stderr,  "size %u  p %s", size_get, p + size_get);
-		//fprintf(stderr, "test buff %s  \n",  req->url_path);
-		
-        //strncpy_s(req->request, sizeof (req->request), buf, strlen(buf));
-        strncpy(req->request, buf, strlen(buf));
+
+
+
+        fprintf(stderr,  "buf %s\n", buf);
+        char *path = p + strlen("GET ");
+        char *find = strstr(path, "/ ");
+        if (find == path)
+        {
+            //у нас пустой get запрос
+            fprintf(stderr, "empty get  %s\n", find);
+        }
+        else
+        {
+            fprintf(stderr, "clear path %s\n", req->url_path);
+            find = strstr(path, "?");
+            if (NULL == find)
+            {
+                find = strstr(path, " HTTP");
+                if (find == NULL)
+                {
+                    fprintf(stderr, "FAIL requet\n");
+                    return ERR_NO_URI;
+                }
+                fprintf(stderr, "Don't have params\n");
+                memcpy(req->url_path, path, find-path);
+                req->url_path[find-path] = 0;
+            }
+            else
+            {
+                char *param = find + 1;
+                memcpy(req->url_path, path, find-path);
+                req->url_path[find-path] = 0;
+
+                find = strstr(path, " HTTP");
+                if (find == NULL)
+                {
+                    fprintf(stderr, "FAIL requet\n");
+                    return ERR_NO_URI;
+                }
+                memcpy(req->url_params, param, find-param);
+                req->url_params[find-param] = 0;
+            }
+
+            fprintf(stderr, "path %s\n", req->url_path);
+            fprintf(stderr, "params %s\n", req->url_params);
+
+        }
+
+
 		a = strchr(buf, '/');
 		if ( a != NULL) { // есть запрашиваемый URI 
 			b = strchr(a, ' ');
@@ -68,7 +107,7 @@ int fill_req(char *buf, struct http_req *req) {
 }
 
 int log_req(struct http_req *req) {
-    //fprintf(stderr, "%s %s\n%s\n", req->request, req->method, req->uri);
+    // fprintf(stderr, "%s %s\n%s\n", req->request, req->method, req->uri);
 	return 0;
 }
 
