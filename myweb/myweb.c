@@ -42,15 +42,18 @@ int fill_req(char *buf, struct http_req *req) {
         //path = strstr(p, "?");
 		uint8_t size_get = strlen("GET ");
 		//strncpy(req->url_path, p+size_get, path-p);
+                fprintf(stderr,  "buf %s", buf);
 		fprintf(stderr,  "size %u  p %s", size_get, p + size_get);
 		//fprintf(stderr, "test buff %s  \n",  req->url_path);
 		
-        strncpy_s(req->request, sizeof (req->request), buf, strlen(buf));
+        //strncpy_s(req->request, sizeof (req->request), buf, strlen(buf));
+        strncpy(req->request, buf, strlen(buf));
 		a = strchr(buf, '/');
 		if ( a != NULL) { // есть запрашиваемый URI 
 			b = strchr(a, ' ');
 			if ( b != NULL ) { // конец URI
-                strncpy_s(req->uri, sizeof (req->uri), a, b-a);
+                //strncpy_s(req->uri, sizeof (req->uri), a, b-a);
+                strncpy(req->uri, a, b-a);
 			} else {
 				return ERR_ENDLESS_URI;  
 				// тогда это что-то не то
@@ -65,7 +68,7 @@ int fill_req(char *buf, struct http_req *req) {
 }
 
 int log_req(struct http_req *req) {
-    fprintf(stderr, "%s %s\n%s\n", req->request, req->method, req->uri);
+    //fprintf(stderr, "%s %s\n%s\n", req->request, req->method, req->uri);
 	return 0;
 }
 
