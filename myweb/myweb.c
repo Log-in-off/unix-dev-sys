@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/mman.h>
 
 #define HTTP_HEADER_LEN 256
 #define HTTP_REQUEST_LEN 256
@@ -106,7 +111,22 @@ int fill_req(char *buf, struct http_req *req) {
 	return 0;	
 }
 
-int log_req(struct http_req *req) {
+int log_req(char *log_path, char *log_mes) {
+    int fd;
+    if ((fd = open(log_path, O_WRONLY | O_CREAT | O_APPEND, 0600 )) < 0)
+    {
+        perror(log_path);
+        return 1;
+    }
+    if (write(fd, log_mes, strlen(log_mes)) != (ssize_t)strlen(log_mes))
+    {
+        perror(log_mes);
+        return 2;
+    }
+    write(fd, "\n", 1);
+    fsync(fd);
+    close(fd);
+    return 0;
     // fprintf(stderr, "%s %s\n%s\n", req->request, req->method, req->uri);
 	return 0;
 }
@@ -136,6 +156,7 @@ int main (void) {
 			printf("Error: %d\n", ret);
 		
 	}
-	log_req(&req);
+
+    log_req("some.log", "message");
 	make_resp(&req);
 }
