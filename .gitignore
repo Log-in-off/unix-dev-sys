@@ -9,5 +9,5 @@ simple3
 simple2
 simple4
 simple
-build/*
+build*
 *.user
