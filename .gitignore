@@ -11,3 +11,4 @@ simple4
 simple
 build*
 *.user
+*.log

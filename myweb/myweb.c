@@ -34,17 +34,17 @@ int fill_req(char *buf, struct http_req *req) {
 		// пустая строка (\r\n) означает конец запроса
 		return REQ_END;
 	}
-	char *p, *a, *b;
-	// Это строка GET-запроса
-	p = strstr(buf, "GET");
+
+    char *p = strstr(buf, "GET"); // Это строка GET-запроса
 	if (p == buf) {
 		// Строка запроса должна быть вида
 		// GET /dir/ HTTP/1.0
 		// GET /dir HTTP/1.1
 		// GET /test123?r=123 HTTP/1.1
-		// и т.п.
 
 
+        if ( strchr(buf, '/') == NULL)
+            return ERR_NO_URI;  // тогда это что-то не то
 
         fprintf(stderr,  "buf %s\n", buf);
         char *path = p + strlen("GET ");
@@ -64,7 +64,7 @@ int fill_req(char *buf, struct http_req *req) {
                 if (find == NULL)
                 {
                     fprintf(stderr, "FAIL requet\n");
-                    return ERR_NO_URI;
+                    return ERR_ENDLESS_URI;
                 }
                 fprintf(stderr, "Don't have params\n");
                 memcpy(req->url_path, path, find-path);
@@ -80,7 +80,7 @@ int fill_req(char *buf, struct http_req *req) {
                 if (find == NULL)
                 {
                     fprintf(stderr, "FAIL requet\n");
-                    return ERR_NO_URI;
+                    return ERR_ENDLESS_URI;
                 }
                 memcpy(req->url_params, param, find-param);
                 req->url_params[find-param] = 0;
@@ -88,24 +88,7 @@ int fill_req(char *buf, struct http_req *req) {
 
             fprintf(stderr, "path %s\n", req->url_path);
             fprintf(stderr, "params %s\n", req->url_params);
-
         }
-
-
-		a = strchr(buf, '/');
-		if ( a != NULL) { // есть запрашиваемый URI 
-			b = strchr(a, ' ');
-			if ( b != NULL ) { // конец URI
-                //strncpy_s(req->uri, sizeof (req->uri), a, b-a);
-                strncpy(req->uri, a, b-a);
-			} else {
-				return ERR_ENDLESS_URI;  
-				// тогда это что-то не то
-			}
-		} else {
-			return ERR_NO_URI; 
-			// тогда это что-то не то
-		}
 	}
 
 	return 0;	
