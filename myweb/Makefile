@@ -5,8 +5,8 @@ CFLAGS=-ggdb
 
 all: build install
 
-build: myweb.c
-	cc $(CFLAGS) $^ -o $@ -lpthread
+build:myweb
+	gcc myweb.c -o myweb -lpthread
 
 clean:
 	rm myweb -f

@@ -36,6 +36,8 @@ struct http_req {
 char const *index_file = "/index.html";
 
 int fill_req(char *buf, struct http_req *req) {
+
+    //fprintf(stderr,  "start buf %s\n", buf);
 	if (strlen(buf) == 2) {
 		// пустая строка (\r\n) означает конец запроса
 		return REQ_END;
@@ -52,13 +54,13 @@ int fill_req(char *buf, struct http_req *req) {
         if ( strchr(buf, '/') == NULL)
             return ERR_NO_URI;  // тогда это что-то не то
 
-        fprintf(stderr,  "buf %s\n", buf);
+        //fprintf(stderr,  "buf %s\n", buf);
         char *path = p + strlen("GET ");
         char *find = strstr(path, "/ ");
         if (find == path)
         {
             //у нас пустой get запрос
-            fprintf(stderr, "empty get  %s\n", find);
+            //fprintf(stderr, "empty get  %s\n", find);
             memcpy(req->url_path, index_file, strlen(index_file));
         }
         else
@@ -70,13 +72,13 @@ int fill_req(char *buf, struct http_req *req) {
                 find = strstr(path, " HTTP");
                 if (find == NULL)
                 {
-                    fprintf(stderr, "FAIL requet\n");
+                    //fprintf(stderr, "FAIL requet\n");
                     return ERR_ENDLESS_URI;
                 }
-                fprintf(stderr, "Don't have params\n");
+                //fprintf(stderr, "Don't have params\n");
                 memcpy(req->url_path, path, find-path);
                 req->url_path[find-path] = 0;
-                fprintf(stderr, "clear path %s\n", req->url_path);
+                //fprintf(stderr, "clear path %s\n", req->url_path);
             }
             else
             {
@@ -84,11 +86,11 @@ int fill_req(char *buf, struct http_req *req) {
                 memcpy(req->url_path, path, find-path);
                 req->url_path[find-path] = 0;
 
-                fprintf(stderr, "path %s\n", req->url_path);
+                //fprintf(stderr, "path %s\n", req->url_path);
                 find = strstr(path, " HTTP");
                 if (find == NULL)
                 {
-                    fprintf(stderr, "FAIL requet\n");
+                    //fprintf(stderr, "FAIL requet\n");
                     return ERR_ENDLESS_URI;
                 }
                 memcpy(req->url_params, param, find-param);
@@ -132,7 +134,7 @@ int make_resp(char *base_path, struct http_req *req)
     char res_file[FILE_NAME_LEN] = "";
 
     sprintf(res_file, "%s%s",base_path, req->url_path);
-    fprintf(stderr, "path file %s\n", res_file);
+    //fprintf(stderr, "path file %s\n", res_file);
     // открываем
     if ((fdin=open(res_file, O_RDONLY)) < 0)
     {
@@ -145,6 +147,7 @@ int make_resp(char *base_path, struct http_req *req)
         perror(res_file);
         return 1;
     }
+
     // mmf
     if ((mmf_ptr = mmap(0, statbuf.st_size, PROT_READ, MAP_SHARED, fdin, 0)) == MAP_FAILED)
     {
@@ -218,10 +221,11 @@ int main (void) {
 	struct http_req req;
     while(fgets(req.buf, sizeof(req.buf),stdin))
     {
+        //get_request(&req);
         pthread_t thr1_id;
         pthread_create(&thr1_id, NULL, &get_request, &req);
-        memset(&req, 0, sizeof(req));
         pthread_join(thr1_id, NULL);
+        memset(&req, 0, sizeof(req));
         return 0;
     }
     return 0;
