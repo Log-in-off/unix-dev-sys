@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/mman.h>
+#include <pthread.h>
 
 #define HTTP_HEADER_LEN 256
 #define HTTP_REQUEST_LEN 256
@@ -19,6 +21,7 @@
 #define ERR_ENDLESS_URI -101
 
 struct http_req {
+    char buf[HTTP_HEADER_LEN];
 	char request[HTTP_REQUEST_LEN];
 	char method[HTTP_METHOD_LEN];
 	char uri[HTTP_URI_LEN];
@@ -182,23 +185,44 @@ int make_resp(char *base_path, struct http_req *req)
 */
 
 
-int main (void) {
-	char buf[HTTP_HEADER_LEN];
-
-	struct http_req req;
-	while(fgets(buf, sizeof(buf),stdin)) {
-		int ret = fill_req(buf, &req);
-		if (ret == 0) 
-			// строка запроса обработана, переходим к следующей
-			continue;
-		if (ret == REQ_END ) 
-			// конец HTTP запроса, вываливаемся на обработку
-			break;
-		else
-			// какая-то ошибка 
-			printf("Error: %d\n", ret);
-	}
+void * get_request(void *arg)
+{
+    struct http_req req;
+    memcpy(&req, arg, sizeof(req));
+    do
+    {
+        int ret = fill_req(req.buf, &req);
+        if (ret == 0)
+            // строка запроса обработана, переходим к следующей
+            continue;
+        if (ret == REQ_END )
+        {
+            // конец HTTP запроса, вываливаемся на обработку
+            break;
+        }
+        else
+        {
+            // какая-то ошибка
+            printf("Error: %d\n", ret);
+            return NULL;
+        }
+    }
+    while(fgets(req.buf, sizeof(req.buf),stdin));
 
     log_req("some.log", "message");
     make_resp("/usr/local/bin/webpages", &req);
+    return NULL;
+}
+
+int main (void) {
+	struct http_req req;
+    while(fgets(req.buf, sizeof(req.buf),stdin))
+    {
+        pthread_t thr1_id;
+        pthread_create(&thr1_id, NULL, &get_request, &req);
+        memset(&req, 0, sizeof(req));
+        pthread_join(thr1_id, NULL);
+        return 0;
+    }
+    return 0;
 }

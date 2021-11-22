@@ -1,9 +1,12 @@
+CFLAGS=-ggdb
+
+
 .PHONY: all install clean
 
 all: build install
 
-build:
-	make myweb
+build: myweb.c
+	cc $(CFLAGS) $^ -o $@ -lpthread
 
 clean:
 	rm myweb -f
