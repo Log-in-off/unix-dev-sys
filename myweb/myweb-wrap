@@ -1,3 +1,3 @@
 #!/bin/sh
-/usr/local/bin/myweb 2>> /home/sysadmin/unix-dev/unix-dev-sys/myweb/myweb.log 
-#/usr/local/bin/myweb 2>> /home/log/Documents/hub/unix-dev-sys/mywebmyweb.log
+#/usr/local/bin/myweb 2>> /home/sysadmin/unix-dev/unix-dev-sys/myweb/myweb.log 
+/usr/local/bin/myweb 2>> /home/log/Documents/hub/unix-dev-sys/mywebmyweb.log
